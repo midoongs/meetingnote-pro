@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetingNote Pro - 로그인 / 회원가입</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="theme.js"></script>
+<script src="app.js"></script>
+</head>
+
+<body class="bg-page dark:bg-canvas text-ink dark:text-fg font-sans antialiased min-h-screen flex flex-col">
+
+<div class="absolute top-3 right-4 z-40" id="themeSlot"></div>
+
+<main class="flex-1 grid place-items-center px-5 py-10">
+  <div class="w-full max-w-[380px]">
+
+    <div class="flex items-center justify-center gap-2 mb-7">
+      <div class="w-9 h-9 rounded-xl bg-ink dark:bg-fg grid place-items-center text-white dark:text-canvas font-extrabold">M</div>
+      <span class="text-xl font-extrabold tracking-tight">MeetingNote</span>
+    </div>
+
+    <div data-ui="panel" class="p-6 sm:p-7">
+      <!-- 세션 만료 - 24시간이 지난 토큰으로 호출하면 토큰을 지우고 이 화면으로 옴 -->
+      <div id="boxExpired" class="hidden mb-5 rounded-xl bg-page dark:bg-chip border border-line dark:border-edge
+           border-l-[6px] border-l-red-dot dark:border-l-red-dot px-3.5 py-2.5">
+        <p class="text-[13px] font-bold text-red-text dark:text-red-dot">세션 만료</p>
+        <p class="text-[12px] text-ink-2 dark:text-dim mt-0.5">24시간이 지나 다시 로그인 필요</p>
+      </div>
+
+      <h1 id="title" class="text-lg font-extrabold mb-1">로그인</h1>
+      <p id="sub" class="text-[13px] text-ink-2 dark:text-dim mb-6">회의록과 할 일을 팀이 함께 관리</p>
+
+      <form id="form" class="space-y-4" novalidate>
+        <div>
+          <label for="email" data-ui="label">이메일</label>
+          <input id="email" type="email" placeholder="user@example.com" autocomplete="username" data-ui="input">
+          <p id="errEmail" data-ui="errText" class="hidden"></p>
+        </div>
+
+        <div>
+          <label for="pw" data-ui="label">비밀번호</label>
+          <input id="pw" type="password" placeholder="8자 이상" autocomplete="current-password" data-ui="input">
+          <p id="errPw" data-ui="errText" class="hidden"></p>
+        </div>
+
+        <!-- 이름 - 회원가입에서만 표시 -->
+        <div id="nameWrap" class="hidden">
+          <label for="uname" data-ui="label">이름</label>
+          <input id="uname" type="text" placeholder="홍길동" autocomplete="name" data-ui="input">
+          <p id="errName" data-ui="errText" class="hidden"></p>
+        </div>
+
+        <!-- 초대코드 - 회원가입에서만 표시 -->
+        <div id="inviteWrap" class="hidden">
+          <label for="invite" data-ui="label">초대코드  <span class="font-normal text-ink-3 dark:text-dim">(선택)</span></label>
+          <input id="invite" type="text" placeholder="MN-7K2D" data-ui="input" class="font-mono tracking-widest">
+          <p id="errInvite" data-ui="errText" class="hidden"></p>
+          <p data-ui="help">비워 두면 가입 후 팀을 새로 만듦</p>
+        </div>
+
+        <!-- 폼 전체 에러 -->
+        <div id="boxErr" class="hidden rounded-xl bg-page dark:bg-chip border-l-[6px] border-red-dot px-3.5 py-2.5">
+          <p id="boxErrText" class="text-[12px] font-bold text-red-text dark:text-red-dot"></p>
+        </div>
+
+        <!-- 성공 -->
+        <div id="boxOk" class="hidden rounded-xl bg-page dark:bg-chip border-l-[6px] border-green-dot px-3.5 py-2.5">
+          <p id="boxOkText" class="text-[12px] font-bold text-green-text dark:text-green-dot"></p>
+        </div>
+
+        <button id="submit" type="submit" data-ui="btnPrimary" class="w-full">로그인</button>
+      </form>
+
+      <p id="switch" class="mt-5 text-center text-[13px] text-ink-2 dark:text-dim"></p>
+    </div>
+  </div>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const email = $("email"), pw = $("pw"), uname = $("uname"), invite = $("invite"), submit = $("submit");
+  const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  let mode = "login";
+
+  const reset = () => {
+    ["errEmail", "errPw", "errName", "errInvite", "boxErr", "boxOk"].forEach((i) => $(i).classList.add("hidden"));
+    [email, pw, uname, invite].forEach((el) => el.classList.remove("border-red-dot"));
+    submit.disabled = false;
+  };
+  const err = (id, input, msg) => {
+    $(id).textContent = msg; $(id).classList.remove("hidden");
+    if (input) input.classList.add("border-red-dot");
+  };
+  const box = (which, msg) => {
+    $(which === "err" ? "boxErrText" : "boxOkText").textContent = msg;
+    $(which === "err" ? "boxErr" : "boxOk").classList.remove("hidden");
+  };
+
+  function setMode(next) {
+    mode = next;
+    reset();
+    const signup = mode === "signup";
+    $("title").textContent = signup ? "회원가입" : "로그인";
+    $("sub").textContent = signup ? "이메일과 비밀번호만 있으면 시작" : "회의록과 할 일을 팀이 함께 관리";
+    $("nameWrap").classList.toggle("hidden", !signup);
+    $("inviteWrap").classList.toggle("hidden", !signup);
+    submit.textContent = signup ? "가입하기" : "로그인";
+    pw.autocomplete = signup ? "new-password" : "current-password";
+    $("switch").innerHTML = signup
+      ? `이미 계정이 있으신가요? <a href="#" id="toggle" class="font-bold text-blue-text dark:text-blue-dot hover:underline">로그인</a>`
+      : `계정이 없으신가요? <a href="#" id="toggle" class="font-bold text-blue-text dark:text-blue-dot hover:underline">회원가입</a>`;
+    $("toggle").onclick = (e) => { e.preventDefault(); setMode(signup ? "login" : "signup"); };
+  }
+
+  const lastEmail = () => { try { return localStorage.getItem("last_email") || ""; } catch (_) { return ""; } };
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    reset();
+    const signup = mode === "signup";
+    // 제출 전에는 오류를 띄우지 않고, 제출하면 형식은 화면에서 먼저 거른다
+    if (signup) {
+      if (!EMAIL_RE.test(email.value.trim())) return err("errEmail", email, "이메일 형식이 올바르지 않음");
+      if (pw.value.length < 8) return err("errPw", pw, "비밀번호는 8자 이상");
+      if (!uname.value.trim()) return err("errName", uname, "이름을 입력해야 함");
+    }
+    submit.disabled = true;
+    submit.textContent = "처리 중...";
+    try {
+      const body = { email: email.value.trim(), password: pw.value };
+      let res;
+      if (signup) {
+        body.name = uname.value.trim();
+        res = await App.api("POST", "/auth/signup", body);
+      } else {
+        res = await App.api("POST", "/auth/login", body);
+      }
+      try { localStorage.setItem("last_email", body.email); } catch (_) {}
+      App.saveSession(res.token, res.team_id, res.user && res.user.role);
+
+      if (signup) {
+        const code = invite.value.trim();
+        if (!code) { location.href = "/team.html"; return; }   // 팀 만들기는 팀 화면에서
+        try {
+          const t = await App.api("POST", "/teams/join", { invite_code: code });
+          App.saveSession(null, t.id, t.role);
+          location.href = "/meetings.html";
+        } catch (je) {
+          // 가입은 되고 합류만 실패 - 계정은 그대로 두고 팀 화면으로 보낸다
+          location.href = "/team.html?invite_error=" + encodeURIComponent(code) + "&code=" + je.code;
+        }
+        return;
+      }
+      box("ok", "성공. 이동 중...");
+      location.href = res.team_id == null ? "/team.html" : "/meetings.html";
+    } catch (ex) {
+      submit.disabled = false;
+      submit.textContent = signup ? "가입하기" : "로그인";
+      if (ex.code === "EMAIL_INVALID") err("errEmail", email, "이메일 형식이 올바르지 않음");
+      else if (ex.code === "PASSWORD_TOO_WEAK") err("errPw", pw, "비밀번호는 8자 이상");
+      else if (ex.code === "EMAIL_DUPLICATED") box("err", "이미 가입된 이메일");
+      else if (ex.code === "INVALID_CREDENTIALS") box("err", "이메일 또는 비밀번호가 올바르지 않음");
+      else box("err", ex.msg || "오류");
+    }
+  }
+
+  $("form").addEventListener("submit", onSubmit);
+  window.addEventListener("DOMContentLoaded", () => {
+    setMode("login");
+    if (new URLSearchParams(location.search).get("expired")) {
+      $("boxExpired").classList.remove("hidden");
+      email.value = lastEmail();
+      pw.focus();
+    }
+  });
+</script>
+</body>
+</html>

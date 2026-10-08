@@ -1,0 +1,20 @@
+[project]
+name = "meetingnote-pro"
+version = "0.1.0"
+description = "팀이 함께 쓰는 회의록 - 녹취를 받아쓰고 요약 · 결정사항 · 할 일로 나눔"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "bcrypt",
+    "pyjwt",
+    "python-multipart",
+    "python-dotenv",
+    "google-genai",
+    "psycopg[binary]",
+]
+
+# Vercel 배포: 프론트와 백엔드를 한 프로젝트로 올린다 (스토리보드 H-01)
+[tool.vercel]
+entrypoint = "main.py"

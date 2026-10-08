@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+bcrypt
+pyjwt
+python-multipart
+python-dotenv
+google-genai
+psycopg[binary]
+pytest
+httpx

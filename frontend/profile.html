@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetingNote Pro - 내 정보</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="theme.js"></script>
+<script src="app.js"></script>
+</head>
+
+<body class="bg-page dark:bg-canvas text-ink dark:text-fg font-sans antialiased min-h-screen flex flex-col">
+
+<header class="sticky top-0 z-30 bg-white dark:bg-canvas border-b border-line dark:border-edge">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
+    <a href="meetings.html" class="flex items-center gap-2 shrink-0">
+      <div class="w-7 h-7 rounded-lg bg-ink dark:bg-fg grid place-items-center text-white dark:text-canvas font-extrabold text-sm">M</div>
+      <span class="font-extrabold tracking-tight">MeetingNote</span>
+    </a>
+    <nav class="flex items-center gap-1 text-[13px] font-bold ml-2 min-w-0 overflow-x-auto whitespace-nowrap">
+      <a href="meetings.html" data-ui="navLink">회의록</a>
+      <a href="todos.html" data-ui="navLink">할 일</a>
+      <a href="team.html" data-ui="navLink">팀</a>
+      <span class="px-2.5 py-1 rounded-lg bg-page dark:bg-chip">내 정보</span>
+    </nav>
+    <div class="ml-auto" id="themeSlot"></div>
+  </div>
+</header>
+
+<main class="flex-1 w-full max-w-6xl mx-auto px-4 py-5 grid gap-4 lg:grid-cols-[1fr_1.3fr]">
+
+  <!-- 왼쪽: 계정 -->
+  <div class="space-y-4">
+    <section data-ui="panel" class="p-5">
+      <div class="flex items-center gap-3 mb-4">
+        <div id="avatar" class="w-12 h-12 rounded-2xl bg-page dark:bg-chip border border-line dark:border-edge grid place-items-center text-lg font-extrabold"></div>
+        <div>
+          <p class="text-[15px] font-extrabold" id="who"></p>
+          <p class="text-[12px] text-ink-3 dark:text-dim" id="mail"></p>
+        </div>
+        <span id="roleBadge" class="ml-auto hidden text-purple-text dark:text-purple-dot bg-page dark:bg-chip" data-ui="badge"></span>
+      </div>
+
+      <label for="name" data-ui="label">이름</label>
+      <input id="name" data-ui="input" maxlength="100">
+      <p id="errName" data-ui="errText" class="hidden"></p>
+
+      <div class="mt-3.5">
+        <label for="pw0" data-ui="label">현재 비밀번호</label>
+        <input id="pw0" type="password" placeholder="비밀번호를 바꿀 때만 입력" autocomplete="current-password" data-ui="input">
+        <p id="errCur" data-ui="errText" class="hidden"></p>
+      </div>
+
+      <div class="mt-3.5 grid gap-3 sm:grid-cols-2">
+        <div>
+          <label for="pw1" data-ui="label">새 비밀번호</label>
+          <input id="pw1" type="password" placeholder="8자 이상" autocomplete="new-password" data-ui="input">
+        </div>
+        <div>
+          <label for="pw2" data-ui="label">한 번 더</label>
+          <input id="pw2" type="password" placeholder="다시 입력" autocomplete="new-password" data-ui="input">
+        </div>
+      </div>
+      <p id="errPw" data-ui="errText" class="hidden"></p>
+
+      <div id="msg" class="hidden mt-3"></div>
+
+      <div class="mt-4 flex gap-2.5">
+        <button id="saveBtn" type="button" data-ui="btnPrimary">저장</button>
+        <button id="logoutBtn" type="button" data-ui="btnGhost">로그아웃</button>
+      </div>
+    </section>
+
+    <section data-ui="panel" class="p-5">
+      <div class="flex items-baseline gap-2 mb-3">
+        <h2 class="text-sm font-extrabold">내 할 일</h2>
+        <span id="tCount" class="text-[11px] text-ink-3 dark:text-dim"></span>
+        <a href="todos.html" class="ml-auto text-[11px] font-bold text-blue-text dark:text-blue-dot hover:underline">보드로</a>
+      </div>
+      <ul id="todos" class="space-y-2"></ul>
+      <p id="tEmpty" class="hidden text-[12px] text-ink-3 dark:text-dim">배정된 할 일이 없음</p>
+    </section>
+  </div>
+
+  <!-- 오른쪽: 내 활동 -->
+  <section data-ui="panel" class="p-5">
+    <div class="flex items-baseline gap-2 mb-3">
+      <h2 class="text-sm font-extrabold">내 활동</h2>
+      <span class="text-[11px] text-ink-3 dark:text-dim">최근 순</span>
+      <span id="aCount" class="ml-auto text-[11px] text-ink-3 dark:text-dim"></span>
+    </div>
+    <ol id="acts" class="space-y-2.5"></ol>
+    <div id="aEmpty" class="hidden px-4 py-10 text-center">
+      <p class="text-sm font-bold">아직 활동이 없음</p>
+      <p class="text-[12px] text-ink-2 dark:text-dim mt-1">회의록을 올리거나 할 일을 처리하면 여기에 쌓임</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KIND_COLOR = { meeting_add: "blue", todo_assign: "orange", todo_done: "green", comment_add: "purple", member_join: "purple" };
+  const STATUS = { OPEN: { l: "대기", c: "orange" }, DOING: { l: "진행", c: "blue" }, DONE: { l: "완료", c: "green" } };
+
+  function renderMe(me) {
+    $("who").textContent = me.name;
+    $("avatar").textContent = me.name[0] || "";
+    $("mail").textContent = me.email;
+    $("name").value = me.name;
+    $("roleBadge").textContent = me.role || "";
+    $("roleBadge").classList.toggle("hidden", !me.role);
+  }
+
+  const clearErrors = () => {
+    ["errName", "errCur", "errPw", "msg"].forEach((i) => $(i).classList.add("hidden"));
+    [$("name"), $("pw0"), $("pw1"), $("pw2")].forEach((el) => el.classList.remove("border-red-dot"));
+  };
+  const err = (id, input, text) => {
+    $(id).textContent = text; $(id).classList.remove("hidden");
+    if (input) input.classList.add("border-red-dot");
+  };
+  const msg = (kind, title, body) => {
+    $("msg").innerHTML = window.notice(kind, title, body);
+    $("msg").classList.remove("hidden");
+  };
+
+  async function loadSide() {
+    const todos = await App.api("GET", "/me/todos");
+    $("tCount").textContent = todos.length + "건";
+    $("tEmpty").classList.toggle("hidden", todos.length > 0);
+    $("todos").innerHTML = todos.map((t) => {
+      const st = STATUS[t.status];
+      return `
+      <li class="${window.UI.card} bg-page dark:bg-chip ${window.STRIPE[st.c]} px-3.5 py-2.5">
+        <p class="text-[13px] font-bold">${App.esc(t.what)}</p>
+        <div class="mt-1 flex gap-1.5">
+          <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white dark:bg-surface text-ink-2 dark:text-dim">${App.esc(t.due_text)}</span>
+          <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold ${window.LABEL[st.c]} bg-white dark:bg-surface">${st.l}</span>
+        </div>
+      </li>`;
+    }).join("");
+
+    const acts = await App.api("GET", "/me/activities");
+    $("aCount").textContent = acts.length ? acts.length + "건" : "";
+    $("acts").classList.toggle("hidden", acts.length === 0);
+    $("aEmpty").classList.toggle("hidden", acts.length > 0);
+    $("acts").innerHTML = acts.map((a) => `
+      <li class="${window.UI.card} bg-page dark:bg-chip ${window.STRIPE[KIND_COLOR[a.kind]]} px-3.5 py-2.5">
+        <p class="text-[13px]">${App.esc(a.text)}</p>
+        <p class="text-[11px] text-ink-3 dark:text-dim mt-0.5">${App.ago(a.created_at)}  ·  <span class="font-mono">${a.kind}</span></p>
+      </li>`).join("");
+  }
+
+  $("saveBtn").onclick = async () => {
+    clearErrors();
+    const name = $("name").value.trim();
+    const wantsPw = $("pw1").value || $("pw2").value || $("pw0").value;
+    if (!name) return err("errName", $("name"), "이름을 입력해야 함");
+    const body = { name };
+    if (wantsPw) {
+      // 화면에서 먼저 거름 - 서버로 보내지 않는다
+      if ($("pw1").value !== $("pw2").value) return err("errPw", $("pw2"), "두 비밀번호가 다름");
+      if ($("pw1").value.length < 8) return err("errPw", $("pw1"), "비밀번호는 8자 이상");
+      if (!$("pw0").value) return err("errCur", $("pw0"), "현재 비밀번호를 입력해야 함");
+      body.current_password = $("pw0").value;
+      body.new_password = $("pw1").value;
+    }
+    $("saveBtn").disabled = true;
+    $("saveBtn").textContent = "저장 중...";
+    try {
+      const me = await App.api("PUT", "/auth/me", body);
+      renderMe(me);
+      ["pw0", "pw1", "pw2"].forEach((i) => ($(i).value = ""));
+      msg("green", "저장함");
+    } catch (ex) {
+      if (ex.code === "UNAUTHORIZED") err("errCur", $("pw0"), "현재 비밀번호가 틀림");
+      else if (ex.code === "PASSWORD_TOO_WEAK") err("errPw", $("pw1"), "비밀번호는 8자 이상");
+      else msg("red", "저장하지 못함", ex.msg);
+    }
+    $("saveBtn").disabled = false;
+    $("saveBtn").textContent = "저장";
+  };
+  $("logoutBtn").onclick = () => App.logout();
+  window.onThemeChange = () => {};
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    if (!App.requireLogin()) return;
+    renderMe(await App.api("GET", "/auth/me"));
+    loadSide();
+  });
+</script>
+</body>
+</html>
