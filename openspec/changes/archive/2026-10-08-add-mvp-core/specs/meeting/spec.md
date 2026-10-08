@@ -8,7 +8,7 @@
 
 ### Requirement: 녹취 업로드와 받아쓰기
 <!-- 근거: C-05 · C-06 · C-07 · C-08 · C-09 / meetings.html -->
-시스템은 mp3 또는 wav 녹취를 받아 본문 텍스트만 돌려줘야 한다(SHALL). 파일은 25MB 이하이며 받아쓰기는 60초 이내에 끝나야 한다. 이 단계에서는 회의록을 저장하지 않는다.
+시스템은 mp3 또는 wav 녹취를 받아 본문 텍스트만 돌려줘야 한다(SHALL). 파일은 4.5MB 이하이며 받아쓰기는 60초 이내에 끝나야 한다. 이 단계에서는 회의록을 저장하지 않는다.
 
 #### Scenario: 받아쓰기 성공
 - **WHEN** 4.2MB wav 를 `POST /api/upload` 로 올린다
@@ -23,8 +23,8 @@
 - **THEN** 415 `UNSUPPORTED_MEDIA_TYPE` 를 받고 "mp3 또는 wav 만 올릴 수 있음" 알림이 보인다
 
 #### Scenario: 용량 초과
-- **WHEN** 25MB 를 넘는 파일을 올린다
-- **THEN** 413 `PAYLOAD_TOO_LARGE` 를 받고 "25MB 를 넘는 파일" 알림이 보이며 분할 업로드는 지원하지 않는다
+- **WHEN** 4.5MB 를 넘는 파일을 올린다
+- **THEN** 413 `PAYLOAD_TOO_LARGE` 를 받고 "4.5MB 를 넘는 파일" 알림이 보이며 분할 업로드는 지원하지 않는다
 
 ### Requirement: 회의록 저장과 세 항목 구분
 <!-- 근거: C-05 · C-10 · C-11 / meetings.html -->

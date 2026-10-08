@@ -26,8 +26,8 @@ def test_upload_type_by_content_not_extension(client, team):
     assert (r.status_code, r.json()["code"]) == (415, "UNSUPPORTED_MEDIA_TYPE")
 
 
-def test_upload_over_25mb(client, team):
-    r = up(client, team["owner"], WAV + b"\x00" * (25 * 1024 * 1024))
+def test_upload_over_limit(client, team):
+    r = up(client, team["owner"], WAV + b"\x00" * int(4.5 * 1024 * 1024))
     assert (r.status_code, r.json()["code"]) == (413, "PAYLOAD_TOO_LARGE")
 
 

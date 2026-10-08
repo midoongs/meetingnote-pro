@@ -13,7 +13,8 @@ FRONTEND_DIR = ROOT / "frontend"
 JWT_SECRET = os.getenv("JWT_SECRET", "meetingnote-dev-secret-change-me")
 JWT_HOURS = 24
 
-MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+# Vercel 함수의 요청 본문 한도(약 4.5MB)에 맞춘다. 배포와 로컬이 같은 값을 쓴다
+MAX_UPLOAD_BYTES = int(4.5 * 1024 * 1024)
 TEAM_LIMIT = 6
 COMMENT_LIMIT = 500
 ACTIVITY_LIMIT = 50

@@ -5,7 +5,7 @@
 - Backend: FastAPI + SQLAlchemy (로컬 SQLite, 배포 Neon Postgres)
 - Frontend: Vanilla JS + Tailwind CDN (`frontend/`, FastAPI 가 StaticFiles 로 함께 서빙)
 - 받아쓰기 · 세 항목 구분: Google Gemini
-- 기획 문서: `docs/`(정의서 · 스토리보드 · 디자인 시스템), 확정 디자인: `publish/`, 계획: `openspec/changes/add-mvp-core/`
+- 기획 문서: `docs/`(정의서 · 스토리보드 · 디자인 시스템), 확정 디자인: `publish/`, 계획: `openspec/specs/` (현재 기준) · `openspec/changes/archive/2026-10-08-add-mvp-core/`
 
 ## 로컬 실행
 
@@ -58,7 +58,7 @@ SQLite 는 배포 환경에서 파일을 쓸 수 없으므로 쓰지 않는다. 
 배포한 주소: https://meetingnote-pro-rust.vercel.app (Neon `meetingnote-pro-db` 연결). 미리보기 배포에서 가입 · 팀 · 업로드 · 받아쓰기 · 저장까지 확인했다.
 `.vercelignore` 로 문서 · 테스트 · 녹음 파일은 배포에서 뺀다.
 
-> 배포 환경의 업로드는 Vercel 함수의 요청 본문 한도(약 4.5MB)에 걸린다. 25MB 까지 받는 것은 로컬에서만 된다.
+> 업로드 상한은 4.5MB 다. Vercel 함수의 요청 본문 한도에 맞춘 값이며 로컬도 같은 값을 쓴다(정의서의 25MB 에서 바꿈).
 
 ## 화면과 API (스토리보드 I-01)
 

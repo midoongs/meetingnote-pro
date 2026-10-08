@@ -8,7 +8,7 @@
 
 - Backend(FastAPI + SQLAlchemy)와 Frontend(Vanilla JS + Tailwind CDN)를 새로 만든다. 로컬은 SQLite, 배포는 Neon, 코드는 한 벌이다.
 - API 26개와 DB 7테이블, 화면 6종(상태 62종)을 구현한다. 화면은 `publish/*.html` 을 새로 디자인하지 않고 그 색 · 클래스 규칙(`theme.js` 의 `window.UI` · `STRIPE` · `LABEL`)을 그대로 따른다.
-- 녹취 업로드(mp3 · wav, 25MB 이하) → Gemini 받아쓰기 → 저장 시 요약 · 결정사항 · 할 일 구분.
+- 녹취 업로드(mp3 · wav, 4.5MB 이하) → Gemini 받아쓰기 → 저장 시 요약 · 결정사항 · 할 일 구분.
 - 정의서 · 스토리보드 · publish 가 어긋난 곳은 explore 에서 다음과 같이 정했다. 아래 결정은 spec 과 design 에 반영한다.
   - 비밀번호 변경은 현재 비밀번호를 함께 받고, 틀리면 `UNAUTHORIZED` 401 (이름만 바꿀 때는 받지 않음).
   - 회의록 수정은 제목 · 시각 · 참석자 · 본문을 입력칸으로 연다 (화면은 6종 그대로).

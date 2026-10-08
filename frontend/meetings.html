@@ -66,7 +66,7 @@
     <!-- 녹취 올리기 -->
     <div id="dropZone" class="mt-3 rounded-xl border-2 border-dashed border-line dark:border-edge px-4 py-6 text-center cursor-pointer">
       <p class="text-[13px] font-bold" id="dropTitle">녹취 파일을 끌어다 놓기</p>
-      <p class="text-[11px] text-ink-3 dark:text-dim mt-1" id="dropSub">mp3 · wav · 25MB 이하. 또는 아래에 메모를 붙여넣기</p>
+      <p class="text-[11px] text-ink-3 dark:text-dim mt-1" id="dropSub">mp3 · wav · 4.5MB 이하. 또는 아래에 메모를 붙여넣기</p>
       <input id="file" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav" class="hidden">
       <div id="progWrap" class="hidden mt-3">
         <div class="h-1.5 rounded-full bg-page dark:bg-chip overflow-hidden">
@@ -104,7 +104,7 @@
 
 <script>
   const $ = (id) => document.getElementById(id);
-  const MAX = 25 * 1024 * 1024;
+  const MAX = 4.5 * 1024 * 1024;   // 서버 한도와 같은 값 (Vercel 요청 본문 한도)
   const CYCLE = ["blue", "green", "orange", "purple", "red"];   // 카드 띠 색은 목록 순서대로 돌려 씀
   let teamId = null, DATA = [], timer = null, saving = false;
 
@@ -163,7 +163,7 @@
     ["nTitle", "nAt", "nWho", "nBody"].forEach((i) => ($(i).value = ""));
     $("file").value = "";
     $("dropTitle").textContent = "녹취 파일을 끌어다 놓기";
-    $("dropSub").textContent = "mp3 · wav · 25MB 이하. 또는 아래에 메모를 붙여넣기";
+    $("dropSub").textContent = "mp3 · wav · 4.5MB 이하. 또는 아래에 메모를 붙여넣기";
     $("saveBtn").disabled = false;
     $("saveBtn").textContent = "정리하기";
     saving = false;
@@ -172,7 +172,7 @@
   // 녹취 올리기 - 올리는 동안 진행률, 서버가 받아쓰는 동안은 멈춘 막대로 기다림
   function upload(file) {
     $("dropErr").classList.add("hidden");
-    if (file.size > MAX) return showErr("red", "25MB 를 넘는 파일", "25MB 이하로 줄여서 올려 주세요");
+    if (file.size > MAX) return showErr("red", "4.5MB 를 넘는 파일", "4.5MB 이하로 줄여서 올려 주세요");
     const mb = (file.size / 1048576).toFixed(1) + "MB";
     $("dropTitle").textContent = file.name;
     $("dropSub").textContent = mb + "  ·  올리는 중";
@@ -210,7 +210,7 @@
       $("dropSub").textContent = mb;
       if (data.code === "TOKEN_EXPIRED") { App.clearSession(); location.href = "/login.html?expired=1"; return; }
       if (x.status === 415) showErr("red", "mp3 또는 wav 만 올릴 수 있음", "mp3 · wav 파일을 올려 주세요");
-      else if (x.status === 413) showErr("red", "25MB 를 넘는 파일", "25MB 이하로 줄여서 올려 주세요");
+      else if (x.status === 413) showErr("red", "4.5MB 를 넘는 파일", "4.5MB 이하로 줄여서 올려 주세요");
       else showErr("red", "받아쓰기에 실패함", data.msg || "잠시 뒤 다시 시도하거나 아래에 메모를 붙여넣어 주세요");
     };
     x.onerror = () => { $("progWrap").classList.add("hidden"); showErr("red", "서버에 연결할 수 없음"); };

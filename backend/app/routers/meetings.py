@@ -122,7 +122,7 @@ def sniff_audio(data: bytes) -> str | None:
 async def upload(file: UploadFile, _: models.User = Depends(current_user)):
     data = await file.read(config.MAX_UPLOAD_BYTES + 1)
     if len(data) > config.MAX_UPLOAD_BYTES:
-        raise bad("PAYLOAD_TOO_LARGE", "25MB 를 넘는 파일", 413)
+        raise bad("PAYLOAD_TOO_LARGE", "4.5MB 를 넘는 파일", 413)
     mime = sniff_audio(data)
     if mime is None:
         raise bad("UNSUPPORTED_MEDIA_TYPE", "mp3 또는 wav 만 올릴 수 있음", 415)
