@@ -48,14 +48,17 @@ Gemini 호출은 테스트에서 가짜로 바꾼다. 메모리 SQLite 를 쓰�
 
 ## 배포 (Vercel + Neon)
 
-1. Vercel 프로젝트를 만들고 이 저장소를 연결한다. 진입점은 루트 `main.py`(`pyproject.toml` 의 `[tool.vercel]`)다.
+1. Vercel 프로젝트를 만들고 이 저장소를 연결한다. 진입점은 루트 `main.py` 의 `app` 이다(`pyproject.toml` 의 `[tool.vercel] entrypoint = "main:app"`). Framework Preset 은 FastAPI.
 2. Vercel Storage 에서 Neon Postgres 를 연결한다. `DATABASE_URL` 이 자동으로 들어온다.
 3. 환경 변수에 `GEMINI_API_KEY`, `GEMINI_MODEL`, `JWT_SECRET`(임의의 긴 문자열)을 등록한다.
 4. 배포 후 `https://<프로젝트>.vercel.app/login.html` 을 연다.
 
 SQLite 는 배포 환경에서 파일을 쓸 수 없으므로 쓰지 않는다. 코드는 `DATABASE_URL` 유무로만 갈린다.
 
-> 아직 실제 Vercel 계정으로 배포해 보지 않았다. 로컬에서는 위 명령으로 서버가 뜨고 루트 `main.py` 도 불러와지는 것까지만 확인했다.
+배포한 주소: https://meetingnote-pro-rust.vercel.app (Neon `meetingnote-pro-db` 연결). 미리보기 배포에서 가입 · 팀 · 업로드 · 받아쓰기 · 저장까지 확인했다.
+`.vercelignore` 로 문서 · 테스트 · 녹음 파일은 배포에서 뺀다.
+
+> 배포 환경의 업로드는 Vercel 함수의 요청 본문 한도(약 4.5MB)에 걸린다. 25MB 까지 받는 것은 로컬에서만 된다.
 
 ## 화면과 API (스토리보드 I-01)
 

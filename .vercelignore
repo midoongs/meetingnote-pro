@@ -1,0 +1,13 @@
+docs/
+publish/
+openspec/
+backend/tests/
+.agents/
+.claude/
+.playwright-mcp/
+*.wav
+*.db
+TODO.md
+CLAUDE.md
+투두가드설명서.md
+skills-lock.json
