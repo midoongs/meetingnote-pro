@@ -5,7 +5,7 @@
 - Backend: FastAPI + SQLAlchemy (로컬 SQLite, 배포 Neon Postgres)
 - Frontend: Vanilla JS + Tailwind CDN (`frontend/`, FastAPI 가 StaticFiles 로 함께 서빙)
 - 받아쓰기 · 세 항목 구분: Google Gemini
-- 기획 문서: `docs/`(정의서 · 스토리보드 · 디자인 시스템), 확정 디자인: `publish/`, 계획: `openspec/changes/meetingnote-pro-round1/`
+- 기획 문서: `docs/`(정의서 · 스토리보드 · 디자인 시스템), 확정 디자인: `publish/`, 계획: `openspec/changes/add-mvp-core/`
 
 ## 로컬 실행
 
